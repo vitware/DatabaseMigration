@@ -8,8 +8,8 @@
 		Type: "int(11)"
 		"Null": "NO"
 		Key: PRI
-		Default: "0"
-		Extra: ""
+		Default: null
+		Extra: auto_increment
 		Reference: null
 		Comment: Primární klíč DBM-f170iowlf1
 		
@@ -30,30 +30,20 @@ aibmpvjnxg:
 		Comment: " DBM-aibmpvjnxg"
 		
 	1fa86t3dkz:
-		Field: a
+		Field: asdf-kjkj
 		Type: "int(11)"
 		"Null": "NO"
 		Key: PRI
-		Default: "0"
-		Extra: ""
+		Default: null
+		Extra: auto_increment
 		Reference: null
 		Comment: " DBM-1fa86t3dkz"
-		
-	kllw7c6zsu:
-		Field: b
-		Type: "int(11)"
-		"Null": "YES"
-		Key: ""
-		Default: null
-		Extra: ""
-		Reference: null
-		Comment: " DBM-kllw7c6zsu"
 		
 	6e7i2ge6fi:
 		Field: c
 		Type: "int(11)"
 		"Null": "YES"
-		Key: ""
+		Key: UNI
 		Default: null
 		Extra: ""
 		Reference: null

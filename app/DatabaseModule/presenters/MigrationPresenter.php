@@ -166,7 +166,7 @@ class MigrationPresenter extends \BasePresenter
 		foreach ($compare as $key => $table) {
 			if (is_array($table)) {
 				// došlo k změně uvnitř tabulky
-				// ??
+				$sql .= $this->updateTable($source[$key], $destination[$key]);
 			} elseif ($table == '+') {
 				// musíme vytvořit tabulku
 				$sql .= $this->createTable($source[$key]);
@@ -178,7 +178,6 @@ class MigrationPresenter extends \BasePresenter
 
 		Debugger::barDump($sql);
 		$this->template->sql = $sql;
-		
 	}
 
 	/**
@@ -190,14 +189,14 @@ class MigrationPresenter extends \BasePresenter
 	private function compareDatabase(array $source, array $destination)
 	{
 		$report = array();
-		
+
 		// projde všechny tabulky, abych zjistil, jestli je tam tabulka navíc
 		foreach ($destination as $key => $destination_table) {
 			if (!isSet($source[$key])) {
 				$report[$key] = '-';
 			}
 		}
-		
+
 		foreach ($source as $key => $source_table) {
 			if (!isSet($destination[$key])) {
 				// tabulka v cílové část není - musí se přidat
@@ -225,7 +224,7 @@ class MigrationPresenter extends \BasePresenter
 	private function compareTable(array $source, array $destination)
 	{
 		$report = array();
-		
+
 		// projde všechny sloupce, abych zjisti, jestli je tam sloupce navíc
 		foreach ($destination as $key => $destination_table) {
 			if (!isSet($source[$key])) {
@@ -245,7 +244,7 @@ class MigrationPresenter extends \BasePresenter
 			}
 		}
 
-		
+
 
 		return $report;
 	}
@@ -259,18 +258,20 @@ class MigrationPresenter extends \BasePresenter
 	private function createTable($source)
 	{
 		$sql = '#' . $source['__table']['Name'] . "\n";
-		$sql .= 'CREATE TABLE `'.$source['__table']['Name'].'` ';
+		$sql .= 'CREATE TABLE `' . $source['__table']['Name'] . '` ';
 
 		// pokus jsou v tabulce nějaké sloupce
 		if (count($source) > 1) {
 			$sql .= "( \n";
 			$i = 0;
 			foreach ($source as $key => $column) {
-				$i ++;
+				$i++;
 				if ($key !== '__table') {
 					$sql .= "\t";
 					$sql .= ($this->columnPartSQL($column));
-					if ($i < count($source)) { $sql .= ', '; }
+					if ($i < count($source)) {
+						$sql .= ', ';
+					}
 					$sql .= "\n";
 				}
 			}
@@ -292,33 +293,69 @@ class MigrationPresenter extends \BasePresenter
 	{
 		return "#" . $tableName . "\nDROP TABLE `" . $tableName . "`; \n\n";
 	}
-	
+
+	private function updateTable($source, $destinatin)
+	{
+		Debugger::barDump($source, 'A');
+		$sql = '#' . $source['__table']['Name'] . "\n";
+		/**
+		 * ALTER TABLE `newtable-s`
+		  CHANGE `asdf` `asdf-kjkj` int(11) NOT NULL COMMENT ' DBM-1fa86t3dkz' AUTO_INCREMENT FIRST,
+		  RENAME TO `newtable`,
+		  COMMENT=' DBM-aibmpvjnxg'
+		  REMOVE PARTITIONING;
+		 */
+		$sql .= "ALTER TABLE `".$destinatin['__table']['Name']."` \n";
+		
+		
+		if ($destinatin['__table']['Name'] !== $source['__table']['Name']) {
+			$sql .= "RENAME TO `".$source['__table']['Name']."` \n";
+		}
+		
+		$sql .= "COMMENT='".$source['__table']['Name']."'";
+		
+
+		$sql .= "\n\n";
+
+		return $sql;
+	}
+
 	/**
 	 * Vrátí část SQL s informacemi o sloupci
 	 * 
 	 * @param type $column 
 	 * @return string část sql příkazu
 	 */
-	private function columnPartSQL($column) 
+	private function columnPartSQL($column)
 	{
 		// jméno sloupce
-		$sql = '`'.$column['Field'].'`';
-		
+		$sql = '`' . $column['Field'] . '`';
+
 		// typ sloupce
-		$sql .= ' '.$column['Type'].' ';
-		
+		$sql .= ' ' . $column['Type'] . ' ';
+
 		// NULL
 		if ($column['Null'] == 'NO') {
 			$sql .= ' NOT NULL ';
 		}
-		
+
 		// Default
 		if ($column['Default'] != '') {
-			$sql .= " DEFAULT '".$column['Default']."' ";
+			$sql .= " DEFAULT '" . $column['Default'] . "' ";
 		}
-		
-		$sql .= " COMMENT '".$column['Comment']."'";
-		
+
+		$sql .= " COMMENT '" . $column['Comment'] . "' ";
+
+		// AUTO_INCREMENT 
+		if ($column['Extra'] != '') {
+			$sql .= " " . $column['Extra'] . " ";
+		}
+
+		// klíče
+		if ($column['Key'] == 'PRI') {
+			$sql .= ' PRIMARY KEY ';
+		}
+
 		return $sql;
 	}
 

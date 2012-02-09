@@ -22,7 +22,7 @@
 	{else}
 	<i class="icon-ok"></i> Tabulka je stejná
 	{/if}
-	| Název tabulky <strong>{$source[$key]['__table']['Name']}</strong> | Id tabulky: <code>{$key}</code>
+	| Název tabulky <strong>{$source[$key]['__table']['Name']}</strong> | Id tabulky: <code>{$key}</code> | Komentář k tabulce: {$source[$key]['__table']['Comment']}
 </p>
 
 {if is_array($table)}
@@ -50,6 +50,8 @@
 		<td>{$source[$key][$name]['Type']}</td>
 		{elseif $column == '-'}
 		<td><i class="icon-remove"></i></td>
+		<td>{$destination[$key][$name]['Field']}</td>
+		<td>{$destination[$key][$name]['Type']}</td>
 		{/if}
 		
 		<td><code>{$name}</code></td>
