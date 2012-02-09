@@ -3,6 +3,10 @@
 
 <h1>Porovnání schémat</h1>
 
+<p>Porovná strukturu databáze uloženou v souboru s sturkurou db, která je používáná</p>
+
+<h2>Přehled změn</h2>
+<p>Vypíše tabulky a sloupce, které se změnily</p>
 {foreach $compare as $key => $table}
 	{if is_array($table)}
 	<h2>{$key}</h2>
@@ -27,6 +31,7 @@
 
 
 <h2>Tabulky bez změny</h2>
+<p>Tyto tabulky se zenměnily</p>
 {foreach $compare as $key => $table}
 	{if is_array($table)}
 
@@ -34,3 +39,11 @@
 		{$key}
 	{/if}
 {/foreach}
+
+<h2>Navrhovaný SQL dotaz</h2>
+<p>Pokusí se navrhnout SQL dotaz, který převede strukturu do daného typu</p>
+<pre>
+{$sql}
+
+</pre>
+
