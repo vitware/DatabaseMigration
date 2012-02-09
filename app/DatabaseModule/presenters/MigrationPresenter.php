@@ -157,7 +157,9 @@ class MigrationPresenter extends \BasePresenter
 		$compare = $this->compareDatabase($source, $destination);
 
 
-		$this->template->compare = array();
+		$this->template->compare = $compare;
+		$this->template->source = $source;
+		$this->template->destination = $destination;
 
 		$sql = '';
 		// projede všechny tabulky 
