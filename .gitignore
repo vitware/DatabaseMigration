@@ -1,1 +1,6 @@
-/nbproject/private/
+*Thumbs.db
+*.svn
+/log
+/nbproject
+/temp
+*Desktop.ini

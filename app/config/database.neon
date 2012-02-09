@@ -1,15 +1,19 @@
-mytable:
-	id:
+50tger78bs:
+	__table:
+		Name: mytable
+		Comment: Toto je moje tabulka DBM-50tger78bs
+		
+	f170iowlf1:
 		Field: id
 		Type: "int(11)"
 		"Null": "NO"
 		Key: PRI
-		Default: null
-		Extra: auto_increment
+		Default: "0"
+		Extra: ""
 		Reference: null
-		Comment: můj primární klíč
+		Comment: Primární klíč DBM-f170iowlf1
 		
-	name:
+	2dpopw0rog:
 		Field: name
 		Type: "varchar(10)"
 		"Null": "YES"
@@ -17,16 +21,42 @@ mytable:
 		Default: null
 		Extra: ""
 		Reference: null
-		Comment: ""
+		Comment: název souboru DBM-2dpopw0rog
 		
-	something:
-		Field: something
-		Type: "varchar(10)"
+	
+aibmpvjnxg:
+	__table:
+		Name: newtable
+		Comment: " DBM-aibmpvjnxg"
+		
+	1fa86t3dkz:
+		Field: a
+		Type: "int(11)"
+		"Null": "NO"
+		Key: PRI
+		Default: "0"
+		Extra: ""
+		Reference: null
+		Comment: " DBM-1fa86t3dkz"
+		
+	kllw7c6zsu:
+		Field: b
+		Type: "int(11)"
 		"Null": "YES"
 		Key: ""
 		Default: null
 		Extra: ""
 		Reference: null
-		Comment: ""
+		Comment: " DBM-kllw7c6zsu"
+		
+	6e7i2ge6fi:
+		Field: c
+		Type: "int(11)"
+		"Null": "YES"
+		Key: ""
+		Default: null
+		Extra: ""
+		Reference: null
+		Comment: " DBM-6e7i2ge6fi"
 		
 	

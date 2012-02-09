@@ -45,14 +45,12 @@ class MigrationPresenter extends \BasePresenter
 		// projde všechny tabulky
 		$report = array();
 		foreach ($this->database->query('SHOW TABLE STATUS') as $table) {
-			Debugger::barDump($table);
-			if (strlen($table['Comment']) <= 0 && strPoS($table['Comment'], $this::COMMENT_PREFIX) !== NULL) {
-				throw new \Nette\Application\BadRequestException('Spusťte nejdřív \database\create');
+			if (strlen($table['Comment']) <= 0 || strPoS($table['Comment'], $this::COMMENT_PREFIX) === FALSE) {
+				throw new \Nette\Application\BadRequestException('Spusťte nejdřív \database\create: ' . $table['Name']);
 			}
-			$report[$table['Name']] = $this->analyzeTable($table['Name']);
+			$report[$this->getID($table['Comment'])] = $this->analyzeTable($table['Name'], $table['Comment']);
 		}
 		return $report;
-		Debugger::barDump($report, 'tables');
 	}
 
 	/**
@@ -60,18 +58,24 @@ class MigrationPresenter extends \BasePresenter
 	 * 
 	 * @param $tableName název tabulky
 	 */
-	private function analyzeTable($tableName)
+	private function analyzeTable($tableName, $comment)
 	{
 		$columns = array();
-		foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $tableName) as $column) {
+		$columns['__table'] = array(
+			'Name' => $tableName,
+			'Comment' => $comment);
 
+		foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $tableName) as $column) {
+			if (strlen($column['Comment']) <= 0 || strPoS($column['Comment'], $this::COMMENT_PREFIX) === FALSE) {
+				throw new \Nette\Application\BadRequestException('Spusťte nejdřív \database\create');
+			}
 			// zjistí cizí klíče
 			try {
 				$reference = $this->database->getDatabaseReflection()->getBelongsToReference($tableName, $column['Field']);
 			} catch (\PDOException $e) {
 				$reference = NULL;
 			}
-			$columns[$column['Field']] = array(
+			$columns[$this->getID($column['Comment'])] = array(
 				'Field' => $column['Field'],
 				'Type' => $column['Type'],
 				'Null' => $column['Null'],
@@ -85,11 +89,22 @@ class MigrationPresenter extends \BasePresenter
 		return $columns;
 	}
 
+	/**
+	 * Vrátí ID z commentu
+	 * 
+	 * @param type $comment
+	 * @return type 
+	 */
+	private function getID($comment)
+	{
+		return substr($comment, strPos($comment, self::COMMENT_PREFIX) + 4);
+	}
+
 	public function actionCreate()
 	{
 		foreach ($this->database->query('SHOW TABLE STATUS') as $table) {
 			// projde pouze tabulky, které neobsahují komentář
-			if (strlen($table['Comment']) <= 0 && strPoS($table['Comment'], self::COMMENT_PREFIX) !== NULL) {
+			if (strlen($table['Comment']) <= 0 || strPoS($table['Comment'], self::COMMENT_PREFIX) === FALSE) {
 				// bude hledat nenalezne klíč, které ještě nebyl přidělen
 				do {
 					$comment = self::COMMENT_PREFIX . \Nette\Utils\Strings::random(self::COMMENT_LENGHT);
@@ -110,11 +125,12 @@ class MigrationPresenter extends \BasePresenter
 	{
 		foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $tableName) as $column) {
 			// projde pouze tabulky, které neobsahují komentář
-			if (strlen($column['Comment']) <= 0 && strPoS($column['Comment'], self::COMMENT_PREFIX) !== NULL) {
+			if (strlen($column['Comment']) <= 0 || strPoS($column['Comment'], self::COMMENT_PREFIX) === FALSE) {
 				// bude hledat nenalezne klíč, které ještě nebyl přidělen
 				do {
 					$comment = self::COMMENT_PREFIX . \Nette\Utils\Strings::random(self::COMMENT_LENGHT);
-					$this->database->query("ALTER TABLE " . $tableName . " CHANGE `".$column['Field']."` `".$column['Field']."` ".$column['Type'].", COMMENT='" . $column['Comment'] . " " . $comment . "'");
+					/** @todo občas asi to některé věci mění :-( */
+					$this->database->query("ALTER TABLE " . $tableName . " CHANGE `" . $column['Field'] . "` `" . $column['Field'] . "` " . $column['Type'] . " COMMENT '" . $column['Comment'] . " " . $comment . "'");
 					$row = $this->database->query('SHOW FULL COLUMNS FROM ' . $tableName . ' where COMMENT LIKE "' . $comment . '%"');
 				} while (!$row);
 			}
@@ -138,11 +154,31 @@ class MigrationPresenter extends \BasePresenter
 	{
 		$source = Neon::decode(file_get_contents(APP_DIR . '\config\database.neon'));
 		$destination = $this->analyzeDatabase();
-		$this->template->compare = ($this->compareDatabase($source, $destination));
+		$compare = $this->compareDatabase($source, $destination);
+
+
+		$this->template->compare = array();
+
+		$sql = '';
+		// projede všechny tabulky 
+		foreach ($compare as $key => $table) {
+			if (is_array($table)) {
+				// došlo k změně uvnitř tabulky
+				// ??
+			} elseif ($table == '+') {
+				// musíme vytvořit tabulku
+				$sql .= $this->createTable($source[$key]);
+			} elseif ($table == '-') {
+				// musíme smazat tabulku
+				$sql .= $this->dropTable($destination[$key]['__table']['Name']);
+			}
+		}
+
+		Debugger::barDump($sql);
 	}
 
 	/**
-	 * Porovná aktuální tabulku s tabulkou, která je uložena v souboru
+	 * Porovná aktuální databázi s databázi, která je uložena v souboru
 	 * 
 	 * @param array $source zdrojová tabulka, zdoj jak má vypadat výsledek
 	 * @param array $destination  cílová tabulka na ni se budou aplikovat změny
@@ -173,6 +209,13 @@ class MigrationPresenter extends \BasePresenter
 		return $report;
 	}
 
+	/**
+	 * Porovná danou tabulku
+	 * 
+	 * @param array $source
+	 * @param array $destination
+	 * @return string 
+	 */
 	private function compareTable(array $source, array $destination)
 	{
 		$report = array();
@@ -198,5 +241,47 @@ class MigrationPresenter extends \BasePresenter
 
 		return $report;
 	}
+
+	/**
+	 * Vrátí SQL příkaz k vytvoření tabulky na základě matice
+	 * 
+	 * @param array $source 
+	 * @return string SQL příkaz k přidání tabulky
+	 */
+	private function createTable($source)
+	{
+		$sql = '#' . $source['__table']['Name'] . "\n";
+		$sql .= 'CREATE TABLE `newTable` ';
+
+		// pokus jsou v tabulce nějaké sloupce
+		if (count($source) > 1) {
+			$sql .= "( \n";
+			foreach ($source as $key => $column) {
+				if ($key !== '__table') {
+					$sql .= "\t";
+					$sql .= '`' . ($column['Field']) . '`';
+					$sql .= "\n";
+				}
+			}
+			$sql .= ") ";
+		}
+
+		$sql .= "COMMENT='" . $source['__table']['Comment'] . "';";
+
+		return $sql;
+	}
+
+	/**
+	 * Vrátí SQL příkaz k odstranění tabulky
+	 * 
+	 * @param string $tableName Název tabulky
+	 * @return string SQL příkaz k odstranění tabulky
+	 */
+	private function dropTable($tableName)
+	{
+		return "#" . $tableName . "\nDROP TABLE `" . $tableName . "`; \n\n";
+	}
+	
+	
 
 }

@@ -7,11 +7,30 @@
 	{if is_array($table)}
 	<h2>{$key}</h2>
 	<p>Tabulka byla změněna</p>
+	{foreach $table as $name => $column}
+		{if $column == '+'}
+		<p>{$name} byl přidán</p>
+		{elseif $column == '-'}
+		<p>{$name} byl odstraněn</p>
+		{elseif $column == '?'}
+		<p>{$name} byl změněn</p>
+		{/if}
+	{/foreach}
 	{elseif $table == '+'}
 	<h2>{$key}</h2>
 	<p>Tabulka byla přidána</p>
 	{elseif $table == '-'}
 	<h2>{$key}</h2>
 	<p>Tabulka byla odstraněna</p>
+	{/if}
+{/foreach}
+
+
+<h2>Tabulky bez změny</h2>
+{foreach $compare as $key => $table}
+	{if is_array($table)}
+
+	{elseif $table == '='}
+		{$key}
 	{/if}
 {/foreach}
