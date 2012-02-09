@@ -1,0 +1,54 @@
+
+{block content}
+
+<div class="hero-unit">
+	<h1>Migrace DB</h1>
+	<p>Přenášejte strukuru <strong>Vaší databáze</strong> snadno a s lehkostí.</p>
+	<h2>Hlavní rysy:</h2>
+	<ul>
+		<li>Ukládá struktru do člověkem čitelného formátu (Neon)</li>
+		<li>Porovná uloženou strukturu s strukturou používané databáze</li>
+		<li>Navrhne SQL dotaz k změnám</li>
+		<li>Dokáže rozpoznat přejmenování tabulky i sloupce</li>
+		
+	</ul>
+
+	<h2>Omezení:</h2>
+	<ul>
+		<li>Žádná tabulka se nesmí jmenovat "__table"</li>
+	
+	</ul>
+</div>
+<h1>Struktura databáze</h1>
+<p>Výpis všech tabulek v db, včetně sloupců a cizích klíčů</p>
+
+{foreach $tables as $table_name => $table}
+<h2>{$table_name}</h2>
+<table class="table table-striped">
+	{foreach $table as $column}
+		{dump $column}
+	<tr>
+		<th>{$column['Field']}</th>
+		<td>
+			<span title="{$column['Type']}">{$column['Type']|truncate:30}</span>
+		</td>
+		<td>{$column['Key']}</td>
+		<td>
+
+
+				{if $column['Null'] == 'YES'}
+			<em>NULL</em>
+				{/if}
+				{$column['Default']}
+				{$column['Extra']}
+				{if $column['Reference'] != NULL}
+					{$column['Reference'][0]}.{$column['Reference'][1]}
+				{/if}
+
+
+		</td>
+		<td>
+	</tr>
+	{/foreach}
+</table>
+{/foreach}

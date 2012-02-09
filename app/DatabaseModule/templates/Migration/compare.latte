@@ -1,0 +1,17 @@
+
+{block content}
+
+<h1>Porovnání schémat</h1>
+
+{foreach $compare as $key => $table}
+	{if is_array($table)}
+	<h2>{$key}</h2>
+	<p>Tabulka byla změněna</p>
+	{elseif $table == '+'}
+	<h2>{$key}</h2>
+	<p>Tabulka byla přidána</p>
+	{elseif $table == '-'}
+	<h2>{$key}</h2>
+	<p>Tabulka byla odstraněna</p>
+	{/if}
+{/foreach}

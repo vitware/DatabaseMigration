@@ -1,0 +1,32 @@
+mytable:
+	id:
+		Field: id
+		Type: "int(11)"
+		"Null": "NO"
+		Key: PRI
+		Default: null
+		Extra: auto_increment
+		Reference: null
+		Comment: můj primární klíč
+		
+	name:
+		Field: name
+		Type: "varchar(10)"
+		"Null": "YES"
+		Key: ""
+		Default: null
+		Extra: ""
+		Reference: null
+		Comment: ""
+		
+	something:
+		Field: something
+		Type: "varchar(10)"
+		"Null": "YES"
+		Key: ""
+		Default: null
+		Extra: ""
+		Reference: null
+		Comment: ""
+		
+	
