@@ -312,7 +312,7 @@ class MigrationPresenter extends \BasePresenter
 			$sql .= "RENAME TO `".$source['__table']['Name']."` \n";
 		}
 		
-		$sql .= "COMMENT='".$source['__table']['Name']."'";
+		$sql .= "COMMENT='".$source['__table']['Comment']."'";
 		
 
 		$sql .= "\n\n";
