@@ -92,7 +92,7 @@ class databaseMigration extends Nette\Object
 			`CONSTRAINT_SCHEMA` = SCHEMA() AND 
 			`REFERENCED_TABLE_NAME` IS NOT NULL AND
 			`TABLE_NAME` = "' . $tableName . '"')->fetchAll();
-		
+
 		foreach ($this->database->query('SHOW FULL COLUMNS FROM `' . $tableName . '`') as $column) {
 			if (strlen($column['Comment']) <= 0 || strPoS($column['Comment'], $this::COMMENT_PREFIX) === FALSE) {
 				$id = $column['Field']; // sloupec, který nemá přidělené ID, použije svůj název
@@ -108,9 +108,13 @@ class databaseMigration extends Nette\Object
 
 			// zjistí cizí klíče
 			$reference = NULL;
-			foreach($keys as $key) {
+			foreach ($keys as $key) {
 				if ($key['COLUMN_NAME'] == $column['Field']) {
-					$reference[] = Array($key['REFERENCED_TABLE_NAME'],$key['REFERENCED_COLUMN_NAME']);
+					$reference[] = Array(
+						'Name' => $key['CONSTRAINT_NAME'],
+						'Table' => $key['REFERENCED_TABLE_NAME'],
+						'Column' => $key['REFERENCED_COLUMN_NAME'],
+					);
 				}
 			}
 

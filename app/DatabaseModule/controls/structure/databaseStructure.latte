@@ -24,7 +24,7 @@
 				{$column['Extra']}
 				{if $column['Reference'] != NULL}
 					{foreach $column['Reference'] as $reference}
-						<i class="icon-share-alt" title="{$reference[0]}.{$reference[1]}"></i>
+						<i class="icon-share-alt" title="{$reference['Table']}.{$reference['Column']}"></i>
 					{/foreach}
 					{*$column['Reference'][0]}.{$column['Reference'][1]*}
 				{/if}
