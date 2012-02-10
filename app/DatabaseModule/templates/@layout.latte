@@ -39,6 +39,7 @@
       <!-- Example row of columns -->
 			<div class="row">
 				<div class="span12">
+				<div n:foreach="$flashes as $flash" class="alert {$flash->type}">{$flash->message}</div>
 				{include #content}
 				</div>
 			</div>

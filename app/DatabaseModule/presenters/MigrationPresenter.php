@@ -47,7 +47,7 @@ class MigrationPresenter extends \BasePresenter
 	public function actionSave()
 	{
 		$this->dbm->save();
-		$this->flashMessage('Struktura byla uložena','success');
+		$this->flashMessage('Struktura byla uložena','alert-success');
 		$this->redirect('load');
 	}
 
