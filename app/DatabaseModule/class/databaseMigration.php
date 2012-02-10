@@ -196,7 +196,7 @@ class databaseMigration extends Nette\Object
 				$allHasId = FALSE;
 				break;
 			}
-			foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $tableName) as $column) {
+			foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $table['Name']) as $column) {
 				if (strlen($column['Comment']) <= 0 || strPoS($column['Comment'], $this::COMMENT_PREFIX) === FALSE) {
 					$allHasId = FALSE;
 					break 2;
