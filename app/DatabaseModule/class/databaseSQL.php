@@ -85,7 +85,7 @@ class databaseSQL extends Nette\Object
 				
 			} elseif (!isSet($destination[$key])) {
 				// nový sloupec
-				$sql .= "\t ADD `" . self::columnPartSQL($column) . "` \n";
+				$sql .= "\t ADD " . self::columnPartSQL($column) . ", \n";
 			} else {
 				if ($destination[$key]['Field'] != $column['Field'] ||
 					$destination[$key]['Type'] != $column['Type'] ||
@@ -94,7 +94,7 @@ class databaseSQL extends Nette\Object
 					$destination[$key]['Comment'] != $column['Comment']
 				) {
 					// změnil se sloupec
-					$sql .= "\t CHANGE `" . $destination[$key]['Field'] . '` ' . self::columnPartSQL($column);
+					$sql .= "\t CHANGE `" . $destination[$key]['Field'] . '` ' . self::columnPartSQL($column). ", \n";
 				}
 			}
 		}
@@ -104,7 +104,7 @@ class databaseSQL extends Nette\Object
 
 
 		if ($destination['__table']['Name'] !== $source['__table']['Name']) {
-			$sql .= "RENAME TO `" . $source['__table']['Name'] . "` \n";
+			$sql .= "RENAME TO `" . $source['__table']['Name'] . "`, \n";
 		}
 
 		$sql .= "COMMENT='" . $source['__table']['Comment'] . "'";
@@ -133,6 +133,8 @@ class databaseSQL extends Nette\Object
 		// NULL
 		if ($column['Null'] == 'NO') {
 			$sql .= ' NOT NULL ';
+		} else {
+			$sql .= ' NULL ';
 		}
 
 		// Default
