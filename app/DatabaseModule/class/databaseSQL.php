@@ -41,6 +41,20 @@ class databaseSQL extends Nette\Object
 
 		$sql .= "COMMENT='" . $source['__table']['Comment'] . "'; \n\n";
 
+		
+		$sql .= "ALTER TABLE `" . $source['__table']['Name'] . "` \n";
+		foreach ($source as $key => $column) {
+			if ($key === '__table') {
+				
+			} else {
+				$sql .= self::columnPartIndex($column, FALSE);
+				$sql .= self::columnPartForeignKey($column['Reference'], NULL, $column);
+			}
+		}
+		$sql .= "COMMENT='" . $source['__table']['Comment'] . "' \n ";
+		$sql .= "REMOVE PARTITIONING; \n ";
+		$sql .= "\n\n";
+		
 		return $sql;
 	}
 
@@ -55,22 +69,17 @@ class databaseSQL extends Nette\Object
 		return "#" . $tableName . "\nDROP TABLE `" . $tableName . "`; \n\n";
 	}
 
+	/**
+	 * Vrátí SQL příkaz k upravení tabulky
+	 * 
+	 * @param type $source 
+	 * @param type $destination
+	 * @return string 
+	 */
 	public static function updateTable($source, $destination)
 	{
 		$sql = '#' . $source['__table']['Name'] . "\n";
-		/**
-		 * ALTER TABLE `newtable-s`
-		  CHANGE `asdf` `asdf-kjkj` int(11) NOT NULL COMMENT ' DBM-1fa86t3dkz' AUTO_INCREMENT FIRST,
-		  RENAME TO `newtable`,
-		  COMMENT=' DBM-aibmpvjnxg'
-		  REMOVE PARTITIONING;
-		 * 
-		 * ALTER TABLE `newtable`
-		  DROP `d`,
-		  ADD `g` int(11) NULL AFTER `c`,
-		  COMMENT=' DBM-aibmpvjnxg'
-		  REMOVE PARTITIONING;
-		 */
+
 		$sql .= "ALTER TABLE `" . $destination['__table']['Name'] . "` \n";
 
 		// odstraní sloupce
@@ -87,6 +96,7 @@ class databaseSQL extends Nette\Object
 				// nový sloupec
 				$sql .= "\t ADD " . self::columnPartSQL($column) . ", \n";
 				$sql .= self::columnPartIndex($column);
+				$sql .= self::columnPartForeignKey($column['Reference'], $destination[$key]['Reference'], $column);
 			} else {
 				if ($destination[$key]['Field'] != $column['Field'] ||
 					$destination[$key]['Type'] != $column['Type'] ||
@@ -117,9 +127,8 @@ class databaseSQL extends Nette\Object
 			$sql .= "RENAME TO `" . $source['__table']['Name'] . "`, \n";
 		}
 
-		$sql .= "COMMENT='" . $source['__table']['Comment'] . "'";
-
-		$sql .= ";";
+		$sql .= "COMMENT='" . $source['__table']['Comment'] . "'\n";
+		$sql .= "REMOVE PARTITIONING; ";
 
 		$sql .= "\n\n";
 
@@ -132,7 +141,7 @@ class databaseSQL extends Nette\Object
 	 * @param type $column 
 	 * @return string část sql příkazu
 	 */
-	public static function columnPartSQL($column, $full = TRUE)
+	public static function columnPartSQL($column, $showPrimary = TRUE)
 	{
 		// jméno sloupce
 		$sql = '`' . $column['Field'] . '`';
@@ -158,8 +167,8 @@ class databaseSQL extends Nette\Object
 		if ($column['Extra'] != '') {
 			$sql .= " " . $column['Extra'] . " ";
 		}
-		
-		if ($full == TRUE) {
+
+		if ($showPrimary == TRUE) {
 			// klíče
 			if ($column['Key'] == 'PRI') {
 				$sql .= ' PRIMARY KEY ';
@@ -169,13 +178,14 @@ class databaseSQL extends Nette\Object
 		return $sql;
 	}
 
-	private static function columnPartIndex($column)
+	private static function columnPartIndex($column, $showPrimary = TRUE)
 	{
 		$sql = "";
 
 
 		// zjistí jestli má nový sloupec index
-		if ($column['Key'] == 'PRI') {
+		if ($column['Key'] == '') {
+		} elseif ($column['Key'] == 'PRI' && $showPrimary = TRUE) {
 			$sql .= "\t ADD PRIMARY KEY `" . $column['Field'] . "` (`" . $column['Field'] . "`), \n";
 		} elseif ($column['Key'] == 'UNI') {
 			$sql .= "\t ADD UNIQUE `" . $column['Field'] . "` (`" . $column['Field'] . "`), \n";

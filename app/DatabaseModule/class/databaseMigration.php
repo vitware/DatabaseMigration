@@ -223,7 +223,7 @@ class databaseMigration extends Nette\Object
 		$source = $this->getSaved();
 		$destination = $this->getActive();
 		$compare = $this->compareDatabase();
-		$sql = '';
+		$sql = "SET foreign_key_checks = 0;\n\n";
 		// projede všechny tabulky 
 		foreach ($compare as $key => $table) {
 			if (is_array($table)) {
