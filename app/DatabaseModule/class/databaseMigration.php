@@ -88,7 +88,12 @@ class databaseMigration extends Nette\Object
 			'Name' => $tableName,
 			'Comment' => $comment);
 
-		foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $tableName) as $column) {
+		$keys = $this->database->query('select * from information_schema.KEY_COLUMN_USAGE  where
+			`CONSTRAINT_SCHEMA` = SCHEMA() AND 
+			`REFERENCED_TABLE_NAME` IS NOT NULL AND
+			`TABLE_NAME` = "' . $tableName . '"')->fetchAll();
+		
+		foreach ($this->database->query('SHOW FULL COLUMNS FROM `' . $tableName . '`') as $column) {
 			if (strlen($column['Comment']) <= 0 || strPoS($column['Comment'], $this::COMMENT_PREFIX) === FALSE) {
 				$id = $column['Field']; // sloupec, který nemá přidělené ID, použije svůj název
 			} else {
@@ -97,14 +102,16 @@ class databaseMigration extends Nette\Object
 
 			// ochrana před duplicitním id
 			if (isSet($report[$id])) {
-				throw new Exception('Podezření na duplicitní ID');
+				throw new Exception('Podezření na duplicitní ID v tabulce: ' . $tableName . ', ve sloupci: ' . $id);
 			}
 
+
 			// zjistí cizí klíče
-			try {
-				$reference = $this->database->getDatabaseReflection()->getBelongsToReference($tableName, $column['Field']);
-			} catch (\PDOException $e) {
-				$reference = NULL;
+			$reference = NULL;
+			foreach($keys as $key) {
+				if ($key['COLUMN_NAME'] == $column['Field']) {
+					$reference[] = Array($key['REFERENCED_TABLE_NAME'],$key['REFERENCED_COLUMN_NAME']);
+				}
 			}
 
 			$columns[$id] = array(
@@ -145,7 +152,7 @@ class databaseMigration extends Nette\Object
 				// bude hledat nenalezne klíč, které ještě nebyl přidělen
 				do {
 					$comment = self::COMMENT_PREFIX . \Nette\Utils\Strings::random(self::COMMENT_LENGHT);
-					$this->database->query("ALTER TABLE " . $table['Name'] . " COMMENT '" . $table['Comment'] . ' ' . $comment . "'");
+					$this->database->query("ALTER TABLE `" . $table['Name'] . "` COMMENT '" . $table['Comment'] . ' ' . $comment . "'");
 					$row = $this->database->query('SHOW TABLE STATUS WHERE COMMENT LIKE "' . $comment . '%"');
 				} while (!$row);
 			}
@@ -160,15 +167,15 @@ class databaseMigration extends Nette\Object
 	 */
 	private function createCommentColumn($tableName)
 	{
-		foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $tableName) as $column) {
+		foreach ($this->database->query('SHOW FULL COLUMNS FROM `' . $tableName . '`') as $column) {
 			// projde pouze tabulky, které neobsahují komentář
 			if (strlen($column['Comment']) <= 0 || strPoS($column['Comment'], self::COMMENT_PREFIX) === FALSE) {
 				// bude hledat nenalezne klíč, které ještě nebyl přidělen
 				do {
 					$comment = self::COMMENT_PREFIX . \Nette\Utils\Strings::random(self::COMMENT_LENGHT);
 					/** @todo občas asi to některé věci mění :-( */
-					$this->database->query("ALTER TABLE " . $tableName . " CHANGE `" . $column['Field'] . "` `" . $column['Field'] . "` " . $column['Type'] . " COMMENT '" . $column['Comment'] . " " . $comment . "'");
-					$row = $this->database->query('SHOW FULL COLUMNS FROM ' . $tableName . ' where COMMENT LIKE "' . $comment . '%"');
+					$this->database->query("ALTER TABLE `" . $tableName . "` CHANGE `" . $column['Field'] . "` `" . $column['Field'] . "` " . $column['Type'] . " COMMENT '" . $column['Comment'] . " " . $comment . "'");
+					$row = $this->database->query('SHOW FULL COLUMNS FROM `' . $tableName . '` where COMMENT LIKE "' . $comment . '%"');
 				} while (!$row);
 			}
 		}
