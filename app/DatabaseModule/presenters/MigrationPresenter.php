@@ -33,7 +33,7 @@ class MigrationPresenter extends \BasePresenter
 
 	public function renderDefault()
 	{
-
+		
 	}
 
 	/**
@@ -47,7 +47,7 @@ class MigrationPresenter extends \BasePresenter
 	public function actionSave()
 	{
 		$this->dbm->save();
-		$this->flashMessage('Struktura byla uložena','alert-success');
+		$this->flashMessage('Struktura byla uložena', 'alert-success');
 		$this->redirect('load');
 	}
 
@@ -61,13 +61,20 @@ class MigrationPresenter extends \BasePresenter
 		$this->template->tables = $this->dbm->getSaved();
 	}
 
-	public function renderCompare()
+	public function renderCompare($reverse = false)
 	{
-		$this->template->compare = $this->dbm->compareDatabase();
-		$this->template->source = $this->dbm->getSaved();
-		$this->template->destination = $this->dbm->getActive();
-
-		$this->template->sql = $this->dbm->getSQL();
+		if ($reverse == false) {
+			$this->template->compare = $this->dbm->compareDatabase();
+			$this->template->source = $this->dbm->getSaved();
+			$this->template->destination = $this->dbm->getActive();
+			$this->template->sql = $this->dbm->getSQL();
+		} else {
+			$this->template->compare = $this->dbm->compareDatabase(true);
+			$this->template->source = $this->dbm->getActive();
+			$this->template->destination = $this->dbm->getSaved();
+			$this->template->sql = $this->dbm->getSQL(true);
+		}
+		$this->template->reverse = $reverse;
 	}
 
 }

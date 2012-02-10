@@ -27,7 +27,8 @@
 							<li {ifCurrent default}class="active"{/ifCurrent}><a n:href="default">Úvod</a></li>
 							<li {ifCurrent structure}class="active"{/ifCurrent}><a n:href="structure">Aktivní struktura</a></li>
 							<li {ifCurrent load}class="active"{/ifCurrent}><a n:href="load">Uložená struktura</a></li>
-							<li {ifCurrent compare}class="active"{/ifCurrent}><a n:href="compare">Porovnat</a></li>
+							<li {ifCurrent compare false}class="active"{/ifCurrent}><a n:href="compare">Porovnat s uloženou</a></li>
+							<li {ifCurrent compare true}class="active"{/ifCurrent}><a n:href="compare true">Porovnat s aktuální</a></li>
 						</ul>
 					  </div><!--/.nav-collapse -->
 				</div>

@@ -143,9 +143,13 @@ class databaseMigration extends Nette\Object
 		return substr($comment, strPos($comment, self::COMMENT_PREFIX) + 4);
 	}
 
-	public function compareDatabase()
+	public function compareDatabase($reverse = false)
 	{
-		return databaseCompare::compareDatabase($this->getSaved(), $this->getActive());
+		if ($reverse == false) {
+			return databaseCompare::compareDatabase($this->getSaved(), $this->getActive());
+		} else {
+			return databaseCompare::compareDatabase($this->getActive(), $this->getSaved());
+		}
 	}
 
 	private function createCommentTables()
@@ -178,7 +182,7 @@ class databaseMigration extends Nette\Object
 				do {
 					$comment = self::COMMENT_PREFIX . \Nette\Utils\Strings::random(self::COMMENT_LENGHT);
 					$nColumn = $column;
-					$nColumn['Comment'] = $column['Comment'].' '. $comment;
+					$nColumn['Comment'] = $column['Comment'] . ' ' . $comment;
 					$this->database->query("ALTER TABLE `" . $tableName . "`\n\t CHANGE `" . $column['Field'] . "` " . databaseSQL::columnPartSQL($nColumn, FALSE) . ";");
 					$row = $this->database->query('SHOW FULL COLUMNS FROM `' . $tableName . '` where COMMENT LIKE "%' . $column['Comment'] . '"');
 				} while (!$row);
@@ -218,11 +222,18 @@ class databaseMigration extends Nette\Object
 		return $allHasId;
 	}
 
-	public function getSQL()
+	public function getSQL($reverse = false)
 	{
-		$source = $this->getSaved();
-		$destination = $this->getActive();
-		$compare = $this->compareDatabase();
+		if ($reverse == false) {
+			$source = $this->getSaved();
+			$destination = $this->getActive();
+			$compare = $this->compareDatabase();
+		} else {
+			$source = $this->getActive();
+			$destination = $this->getSaved();
+			$compare = $this->compareDatabase(true);
+		}
+
 		$sql = "SET foreign_key_checks = 0;\n\n";
 		// projede všechny tabulky 
 		foreach ($compare as $key => $table) {

@@ -2,8 +2,11 @@
 {block content}
 
 <h1>Porovnání schémat</h1>
-
-<p>Porovná strukturu databáze uloženou v souboru s sturkurou db, která je používáná</p>
+{if $reverse == false}
+<p>Porovná strukturu databáze uloženou v souboru s sturkurou db, která je používáná. Cílem je vrátit aktuální db do stavu, který je v souboru.</p>
+{else}
+<p>Porovná strukturu databáze v aktuální db se strukturou uloženou v souboru. Vypíše všechny změny, které je třeba provést aby struktura v souboru se změnila do struktury v aktuální db. </p>
+{/if}
 
 <h2>Výpis tabulek</h2>
 <p>Vypíše všechny tabulky a u každé zobrazí poznámku zda byla přidána, odstraněna, změněna.</p>
