@@ -108,7 +108,8 @@ class databaseSQL extends Nette\Object
 		}
 
 		$sql .= "COMMENT='" . $source['__table']['Comment'] . "'";
-
+		
+		$sql .= ";";
 
 		$sql .= "\n\n";
 

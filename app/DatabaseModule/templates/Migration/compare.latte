@@ -61,6 +61,10 @@
 		<td><i class="icon-remove"></i></td>
 		<td>{$destination[$key][$name]['Field']}</td>
 		<td>{$destination[$key][$name]['Type']}</td>
+		{else}
+		<td>?</td>
+		<td>{$column}</td>
+		<td></td>
 		{/if}
 
 		<td><code>{$name}</code></td>

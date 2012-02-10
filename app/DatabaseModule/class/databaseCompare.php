@@ -72,8 +72,6 @@ class databaseCompare extends Nette\Object
 			}
 		}
 
-
-
 		return $report;
 	}
 

@@ -107,7 +107,7 @@ class databaseMigration extends Nette\Object
 				$reference = NULL;
 			}
 
-			$columns[$this->getID($column['Comment'])] = array(
+			$columns[$id] = array(
 				'Field' => $column['Field'],
 				'Type' => $column['Type'],
 				'Null' => $column['Null'],
