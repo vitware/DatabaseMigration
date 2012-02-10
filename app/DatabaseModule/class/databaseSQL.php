@@ -1,6 +1,7 @@
 <?php
 
 use Nette\Diagnostics\Debugger;
+
 /**
  * Stará se vytváření SQL příkazů
  *
@@ -8,7 +9,7 @@ use Nette\Diagnostics\Debugger;
  */
 class databaseSQL extends Nette\Object
 {
-	
+
 	/**
 	 * Vrátí SQL příkaz k vytvoření tabulky na základě matice
 	 * 
@@ -42,8 +43,7 @@ class databaseSQL extends Nette\Object
 
 		return $sql;
 	}
-	
-	
+
 	/**
 	 * Vrátí SQL příkaz k odstranění tabulky
 	 * 
@@ -86,6 +86,7 @@ class databaseSQL extends Nette\Object
 			} elseif (!isSet($destination[$key])) {
 				// nový sloupec
 				$sql .= "\t ADD " . self::columnPartSQL($column) . ", \n";
+				$sql .= self::columnPartIndex($column);
 			} else {
 				if ($destination[$key]['Field'] != $column['Field'] ||
 					$destination[$key]['Type'] != $column['Type'] ||
@@ -94,21 +95,27 @@ class databaseSQL extends Nette\Object
 					$destination[$key]['Comment'] != $column['Comment']
 				) {
 					// změnil se sloupec
-					$sql .= "\t CHANGE `" . $destination[$key]['Field'] . '` ' . self::columnPartSQL($column). ", \n";
+					$sql .= "\t CHANGE `" . $destination[$key]['Field'] . '` ' . self::columnPartSQL($column) . ", \n";
+				}
+				// jestli se změnil index
+				if ($destination[$key]['Key'] != $column['Key']) {
+					if ($column['Key'] == '') {
+						// když nyní žádný není, může ho dropnout
+						
+					}
+
+					// přidá nový index
+					$sql .= self::columnPartIndex($column);
 				}
 			}
 		}
-
-
-
-
 
 		if ($destination['__table']['Name'] !== $source['__table']['Name']) {
 			$sql .= "RENAME TO `" . $source['__table']['Name'] . "`, \n";
 		}
 
 		$sql .= "COMMENT='" . $source['__table']['Comment'] . "'";
-		
+
 		$sql .= ";";
 
 		$sql .= "\n\n";
@@ -154,6 +161,22 @@ class databaseSQL extends Nette\Object
 			$sql .= ' PRIMARY KEY ';
 		}
 
+		return $sql;
+	}
+
+	private static function columnPartIndex($column)
+	{
+		$sql = "";
+
+
+		// zjistí jestli má nový sloupec index
+		if ($column['Key'] == 'PRI') {
+			$sql .= "\t ADD PRIMARY KEY `" . $column['Field'] . "` (`" . $column['Field'] . "`), \n";
+		} elseif ($column['Key'] == 'UNI') {
+			$sql .= "\t ADD UNIQUE `" . $column['Field'] . "` (`" . $column['Field'] . "`), \n";
+		} else {
+			$sql .= "\t ADD INDEX `" . $column['Field'] . "` (`" . $column['Field'] . "`), \n";
+		}
 		return $sql;
 	}
 
