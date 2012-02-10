@@ -32,8 +32,12 @@ class MigrationPresenter extends \BasePresenter
 
 	public function renderDefault()
 	{
+		
+	}
+	
+	public function renderStructure()
+	{
 		$this->template->tables = $this->analyzeDatabase();
-		//$this->template->tables = array();
 	}
 
 	/**
