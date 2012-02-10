@@ -101,11 +101,14 @@ class databaseSQL extends Nette\Object
 				if ($destination[$key]['Key'] != $column['Key']) {
 					if ($column['Key'] == '') {
 						// když nyní žádný není, může ho dropnout
-						
 					}
-
 					// přidá nový index
 					$sql .= self::columnPartIndex($column);
+				}
+
+				// jestli se změnil cizí klíč
+				if ($destination[$key]['Reference'] != $column['Reference']) {
+					$sql .= self::columnPartForeignKey($column['Reference'], $destination[$key]['Reference'], $column);
 				}
 			}
 		}
@@ -176,6 +179,42 @@ class databaseSQL extends Nette\Object
 			$sql .= "\t ADD UNIQUE `" . $column['Field'] . "` (`" . $column['Field'] . "`), \n";
 		} else {
 			$sql .= "\t ADD INDEX `" . $column['Field'] . "` (`" . $column['Field'] . "`), \n";
+		}
+		return $sql;
+	}
+
+	/**
+	 * Vrátí část SQL pro změnu cizích klíčů pro daný sloupec
+	 * 
+	 * @param array $source 
+	 * @param array $destination 
+	 */
+	private static function columnPartForeignKey($source, $destination, $column)
+	{
+		$sql = '';
+
+		// projde všechny klíče, které musí odstranit
+		if (is_array($destination)) {
+			foreach ($destination as $key => $foreignKey) {
+				if (!isSet($source[$key])) {
+					$sql .= "\t DROP FOREIGN KEY `" . $key . "`,\n";
+				}
+			}
+		}
+
+		// projde všechny klíče
+		if (is_array($source)) {
+			foreach ($source as $key => $foreignKey) {
+				if (!isSet($destination[$key])) {
+					// klíč v cílové část není - musí se přidat
+					$sql .= "\t ADD CONSTRAINT `" . $foreignKey['Name'] . "` FOREIGN KEY (`" . $column['Field'] . "`) REFERENCES `" . $foreignKey['Table'] . "` (`" . $foreignKey['Column'] . "`), \n";
+				} elseif ($source_table == $destination[$key]) {
+					// jsou stejné, nemusí se nic dělat					
+				} else {
+					// došlo ke změně
+					$sql .= '# ?? změna!?';
+				}
+			}
 		}
 		return $sql;
 	}
