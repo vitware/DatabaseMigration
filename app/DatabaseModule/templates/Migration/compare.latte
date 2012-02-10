@@ -3,9 +3,18 @@
 
 <h1>Porovnání schémat</h1>
 {if $reverse == false}
-<p>Porovná strukturu databáze uloženou v souboru s sturkurou db, která je používáná. Cílem je vrátit aktuální db do stavu, který je v souboru.</p>
+<p>
+	Porovná strukturu databáze uloženou v souboru s sturkurou db, která je používáná. Cílem je vrátit aktuální db do stavu, který je v souboru.
+</p>
+<a n:href="compare true" class="btn"><i class="icon-download"></i> Přepnout na porovnání z db do souboru </a>
+
 {else}
-<p>Porovná strukturu databáze v aktuální db se strukturou uloženou v souboru. Vypíše všechny změny, které je třeba provést aby struktura v souboru se změnila do struktury v aktuální db. </p>
+<p>
+	Porovná strukturu databáze v aktuální db se strukturou uloženou v souboru. Vypíše všechny změny, které je třeba provést aby struktura v souboru se změnila do struktury v aktuální db. 
+</p>
+<a n:href="compare false" class="btn"><i class="icon-upload"></i> Přenout na porovnání z souboru do db</a>
+
+
 {/if}
 
 <h2>Výpis tabulek</h2>
