@@ -33,7 +33,7 @@ class MigrationPresenter extends \BasePresenter
 
 	public function renderDefault()
 	{
-		
+
 	}
 
 	/**
@@ -63,7 +63,6 @@ class MigrationPresenter extends \BasePresenter
 
 	public function renderCompare()
 	{
-		Debugger::barDump($this->dbm->getActive());
 		$this->template->compare = $this->dbm->compareDatabase();
 		$this->template->source = $this->dbm->getSaved();
 		$this->template->destination = $this->dbm->getActive();
