@@ -21,13 +21,13 @@
 		<div class="navbar navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
-					<a class="brand" href="/">Migrace DB</a>
+					<a class="brand" n:href="default">Migrace DB</a>
 					<div class="nav-collapse">
 						<ul class="nav">
-							<li><a n:href="default">Úvod</a></li>
-							<li><a n:href="structure">Aktivní struktura</a></li>
-							<li><a n:href="load">Uložená struktura</a></li>
-							<li><a n:href="compare">Porovnat</a></li>
+							<li {ifCurrent default}class="active"{/ifCurrent}><a n:href="default">Úvod</a></li>
+							<li {ifCurrent structure}class="active"{/ifCurrent}><a n:href="structure">Aktivní struktura</a></li>
+							<li {ifCurrent load}class="active"{/ifCurrent}><a n:href="load">Uložená struktura</a></li>
+							<li {ifCurrent compare}class="active"{/ifCurrent}><a n:href="compare">Porovnat</a></li>
 						</ul>
 					  </div><!--/.nav-collapse -->
 				</div>

@@ -1,6 +1,11 @@
 
-{foreach $tables as $table_name => $table}
-<h2>{$table_name}</h2>
+{foreach $tables as $table_key => $table}
+<h2>{$table['__table']['Name']|capitalize}</h2>
+<p>
+	Název tabulky: <strong>{$table['__table']['Name']}</strong> |
+	ID tabulky: <code>{$table_key}</code>
+	Komentář k tabulce: {$table['__table']['Comment']}
+</p>
 <table class="table table-striped">
 	{foreach $table as $key => $column}
 		{if $key !== '__table'}
