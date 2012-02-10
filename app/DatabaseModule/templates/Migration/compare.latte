@@ -8,7 +8,11 @@
 <h2>Výpis tabulek</h2>
 <p>Vypíše všechny tabulky a u každé zobrazí poznámku zda byla přidána, odstraněna, změněna.</p>
 {foreach $compare as $key => $table}
+{if $table == '-'}
+<h3>{$destination[$key]['__table']['Name']|capitalize}</h3>
+{else}
 <h3>{$source[$key]['__table']['Name']|capitalize}</h3>
+{/if}
 <p>
 	{if is_array($table)}
 
@@ -22,7 +26,12 @@
 	{else}
 	<i class="icon-ok"></i> Tabulka je stejná
 	{/if}
+
+	{if $table == '-'}
+	| Název tabulky <strong>{$destination[$key]['__table']['Name']}</strong> | Id tabulky: <code>{$key}</code> | Komentář k tabulce: {$destination[$key]['__table']['Comment']}
+	{else}
 	| Název tabulky <strong>{$source[$key]['__table']['Name']}</strong> | Id tabulky: <code>{$key}</code> | Komentář k tabulce: {$source[$key]['__table']['Comment']}
+	{/if}
 </p>
 
 {if is_array($table)}
@@ -53,9 +62,9 @@
 		<td>{$destination[$key][$name]['Field']}</td>
 		<td>{$destination[$key][$name]['Type']}</td>
 		{/if}
-		
+
 		<td><code>{$name}</code></td>
-		
+
 	</tr>
 	{/if}
 	{/foreach}
