@@ -1,7 +1,5 @@
 <?php
 
-
-
 use Nette\Diagnostics\Debugger,
 	Nette\Utils\Neon;
 
@@ -34,7 +32,7 @@ class databaseMigration extends Nette\Object
 	 */
 	public function getActive()
 	{
-		if (! isSet($this->active)) {
+		if (!isSet($this->active)) {
 			$this->active = $this->analyzeDatabase();
 		}
 		return $this->active;
@@ -49,7 +47,7 @@ class databaseMigration extends Nette\Object
 		if (!isSet($this->saved)) {
 			$this->saved = Neon::decode(file_get_contents($this->fileName));
 		}
-		
+
 		return $this->saved;
 	}
 
@@ -63,9 +61,17 @@ class databaseMigration extends Nette\Object
 		$report = array();
 		foreach ($this->database->query('SHOW TABLE STATUS') as $table) {
 			if (strlen($table['Comment']) <= 0 || strPoS($table['Comment'], $this::COMMENT_PREFIX) === FALSE) {
-				throw new \Nette\Application\BadRequestException('Spusťte nejdřív \database\create: ' . $table['Name']);
+				$id = $table['Name']; // tabulka, která nemá přidělené ID pooužije svůj název
+			} else {
+				$id = $this->getID($table['Comment']);
 			}
-			$report[$this->getID($table['Comment'])] = $this->analyzeTable($table['Name'], $table['Comment']);
+
+			// ochrana před tím, aby víc tabulek mělo stejné id
+			if (isSet($report[$id])) {
+				throw new Exception('Podezření na duplicitní ID');
+			}
+
+			$report[$id] = $this->analyzeTable($table['Name'], $table['Comment']);
 		}
 		return $report;
 	}
@@ -84,14 +90,23 @@ class databaseMigration extends Nette\Object
 
 		foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $tableName) as $column) {
 			if (strlen($column['Comment']) <= 0 || strPoS($column['Comment'], $this::COMMENT_PREFIX) === FALSE) {
-				throw new \Nette\Application\BadRequestException('Spusťte nejdřív \database\create');
+				$id = $column['Field']; // sloupec, který nemá přidělené ID, použije svůj název
+			} else {
+				$id = $this->getID($column['Comment']);
 			}
+
+			// ochrana před duplicitním id
+			if (isSet($report[$id])) {
+				throw new Exception('Podezření na duplicitní ID');
+			}
+
 			// zjistí cizí klíče
 			try {
 				$reference = $this->database->getDatabaseReflection()->getBelongsToReference($tableName, $column['Field']);
 			} catch (\PDOException $e) {
 				$reference = NULL;
 			}
+
 			$columns[$this->getID($column['Comment'])] = array(
 				'Field' => $column['Field'],
 				'Type' => $column['Type'],
@@ -168,11 +183,29 @@ class databaseMigration extends Nette\Object
 		file_put_contents($this->fileName, Neon::encode($structure, 1));
 	}
 
-	public function allHasId()
+	/**
+	 * Zjistí, zda všechny tabulky mají své ID
+	 * @return boolean 
+	 */
+	private function allHasId()
 	{
-		return true;
+		$allHasId = TRUE;
+		// projde všechny tabulky
+		foreach ($this->database->query('SHOW TABLE STATUS') as $table) {
+			if (strlen($table['Comment']) <= 0 || strPoS($table['Comment'], $this::COMMENT_PREFIX) === FALSE) {
+				$allHasId = FALSE;
+				break;
+			}
+			foreach ($this->database->query('SHOW FULL COLUMNS FROM ' . $tableName) as $column) {
+				if (strlen($column['Comment']) <= 0 || strPoS($column['Comment'], $this::COMMENT_PREFIX) === FALSE) {
+					$allHasId = FALSE;
+					break 2;
+				}
+			}
+		}
+		return $allHasId;
 	}
-	
+
 	public function getSQL()
 	{
 		$source = $this->getSaved();
