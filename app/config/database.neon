@@ -1,9 +1,9 @@
-50tger78bs:
+ec62hkn0vy:
 	__table:
-		Name: mytable
-		Comment: Toto je moje tabulka DBM-50tger78bs
+		Name: application
+		Comment: " DBM-ec62hkn0vy"
 		
-	f170iowlf1:
+	y4g4398s42:
 		Field: id
 		Type: "int(11)"
 		"Null": "NO"
@@ -11,42 +11,162 @@
 		Default: null
 		Extra: auto_increment
 		Reference: null
-		Comment: Primární klíč DBM-f170iowlf1
+		Comment: " DBM-y4g4398s42"
 		
-	2dpopw0rog:
-		Field: name
-		Type: "varchar(10)"
+	b6hh21n8nw:
+		Field: author_id
+		Type: "int(11)"
+		"Null": "NO"
+		Key: MUL
+		Default: null
+		Extra: ""
+		Reference:
+			application_ibfk_1:
+				Name: application_ibfk_1
+				Table: author
+				Column: id
+				
+			
+		Comment: " DBM-b6hh21n8nw"
+		
+	cnhrdzyrdg:
+		Field: title
+		Type: "varchar(100)"
+		"Null": "NO"
+		Key: ""
+		Default: null
+		Extra: ""
+		Reference: null
+		Comment: " DBM-cnhrdzyrdg"
+		
+	ohajexssrz:
+		Field: web
+		Type: "varchar(100)"
 		"Null": "YES"
 		Key: ""
 		Default: null
 		Extra: ""
 		Reference: null
-		Comment: název souboru DBM-2dpopw0rog
+		Comment: " DBM-ohajexssrz"
+		
+	3c937xo9wg:
+		Field: slogan
+		Type: text
+		"Null": "NO"
+		Key: ""
+		Default: null
+		Extra: ""
+		Reference: null
+		Comment: " DBM-3c937xo9wg"
 		
 	
-aibmpvjnxg:
+ffvhrzcb5y:
 	__table:
-		Name: newtable
-		Comment: " DBM-aibmpvjnxg"
+		Name: application_tag
+		Comment: " DBM-ffvhrzcb5y"
 		
-	1fa86t3dkz:
-		Field: asdf-kjkj
+	jii815vpcs:
+		Field: application_id
+		Type: "int(11)"
+		"Null": "NO"
+		Key: MUL
+		Default: null
+		Extra: auto_increment
+		Reference:
+			application_tag_ibfk_1:
+				Name: application_tag_ibfk_1
+				Table: application
+				Column: id
+				
+			
+		Comment: " DBM-jii815vpcs"
+		
+	upopq6dd3f:
+		Field: tag_id
+		Type: "int(11)"
+		"Null": "NO"
+		Key: MUL
+		Default: null
+		Extra: ""
+		Reference:
+			application_tag_ibfk_2:
+				Name: application_tag_ibfk_2
+				Table: tag
+				Column: id
+				
+			
+		Comment: " DBM-upopq6dd3f"
+		
+	
+od6bki6wr8:
+	__table:
+		Name: author
+		Comment: " DBM-od6bki6wr8"
+		
+	hvopmqzvp6:
+		Field: id
 		Type: "int(11)"
 		"Null": "NO"
 		Key: PRI
 		Default: null
 		Extra: auto_increment
 		Reference: null
-		Comment: " DBM-1fa86t3dkz"
+		Comment: " DBM-hvopmqzvp6"
 		
-	6e7i2ge6fi:
-		Field: c
-		Type: "int(11)"
-		"Null": "YES"
-		Key: UNI
+	un6vg5rrhc:
+		Field: name
+		Type: "int(100)"
+		"Null": "NO"
+		Key: ""
 		Default: null
 		Extra: ""
 		Reference: null
-		Comment: " DBM-6e7i2ge6fi"
+		Comment: " DBM-un6vg5rrhc"
+		
+	dl9im7b1vr:
+		Field: web_132
+		Type: "int(200)"
+		"Null": "YES"
+		Key: ""
+		Default: null
+		Extra: ""
+		Reference: null
+		Comment: " DBM-dl9im7b1vr"
+		
+	983u9jg3u9:
+		Field: born
+		Type: datetime
+		"Null": "NO"
+		Key: ""
+		Default: null
+		Extra: ""
+		Reference: null
+		Comment: " DBM-983u9jg3u9"
+		
+	
+8ayt9cdcor:
+	__table:
+		Name: tag
+		Comment: " DBM-8ayt9cdcor"
+		
+	94pryus0e5:
+		Field: id
+		Type: "int(11)"
+		"Null": "NO"
+		Key: PRI
+		Default: null
+		Extra: auto_increment
+		Reference: null
+		Comment: " DBM-94pryus0e5"
+		
+	9qngtsijen:
+		Field: name
+		Type: "varchar(100)"
+		"Null": "NO"
+		Key: ""
+		Default: null
+		Extra: ""
+		Reference: null
+		Comment: " DBM-9qngtsijen"
 		
 	
