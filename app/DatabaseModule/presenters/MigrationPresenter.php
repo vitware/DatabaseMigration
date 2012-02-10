@@ -32,8 +32,8 @@ class MigrationPresenter extends \BasePresenter
 
 	public function renderDefault()
 	{
-		//$this->template->tables = $this->analyzeDatabase();
-		$this->template->tables = array();
+		$this->template->tables = $this->analyzeDatabase();
+		//$this->template->tables = array();
 	}
 
 	/**
@@ -143,6 +143,11 @@ class MigrationPresenter extends \BasePresenter
 		file_put_contents(APP_DIR . '\config\database.neon', Neon::encode($structure, 1));
 		$this->flashMessage('Stav db byl uložen do souboru database.neon', 'success');
 		$this->redirect('load');
+	}
+	
+	public function createComponentDatabaseStructure()
+	{
+		return new \databaseStructure();
 	}
 
 	public function renderLoad()
@@ -294,9 +299,8 @@ class MigrationPresenter extends \BasePresenter
 		return "#" . $tableName . "\nDROP TABLE `" . $tableName . "`; \n\n";
 	}
 
-	private function updateTable($source, $destinatin)
+	private function updateTable($source, $destination)
 	{
-		Debugger::barDump($source, 'A');
 		$sql = '#' . $source['__table']['Name'] . "\n";
 		/**
 		 * ALTER TABLE `newtable-s`
@@ -304,16 +308,52 @@ class MigrationPresenter extends \BasePresenter
 		  RENAME TO `newtable`,
 		  COMMENT=' DBM-aibmpvjnxg'
 		  REMOVE PARTITIONING;
+		 * 
+		 * ALTER TABLE `newtable`
+		  DROP `d`,
+		  ADD `g` int(11) NULL AFTER `c`,
+		  COMMENT=' DBM-aibmpvjnxg'
+		  REMOVE PARTITIONING;
 		 */
-		$sql .= "ALTER TABLE `".$destinatin['__table']['Name']."` \n";
-		
-		
-		if ($destinatin['__table']['Name'] !== $source['__table']['Name']) {
-			$sql .= "RENAME TO `".$source['__table']['Name']."` \n";
+		$sql .= "ALTER TABLE `" . $destination['__table']['Name'] . "` \n";
+
+		// odstraní sloupce
+		foreach ($destination as $key => $column) {
+			if (!isSet($source[$key])) {
+				$sql .= "\t DROP `" . $column['Field'] . "` \n";
+			}
 		}
-		
-		$sql .= "COMMENT='".$source['__table']['Comment']."'";
-		
+
+		foreach ($source as $key => $column) {
+			if ($key === '__table') {
+				
+			} elseif (!isSet($destination[$key])) {
+				// nový sloupec
+				$sql .= "\t ADD `" . $this->columnPartSQL($column) . "` \n";
+			} else {
+				Debugger::barDump($column);
+				if ($destination[$key]['Field'] != $column['Field'] ||
+					$destination[$key]['Type'] != $column['Type'] ||
+					$destination[$key]['Null'] != $column['Null'] ||
+					$destination[$key]['Default'] != $column['Default'] ||
+					$destination[$key]['Comment'] != $column['Comment']
+				) {
+					// změnil se sloupec
+					$sql .= "\t CHANGE `" . $destination[$key]['Field'] . '` ' . $this->columnPartSQL($column);
+				}
+			}
+		}
+
+
+
+
+
+		if ($destination['__table']['Name'] !== $source['__table']['Name']) {
+			$sql .= "RENAME TO `" . $source['__table']['Name'] . "` \n";
+		}
+
+		$sql .= "COMMENT='" . $source['__table']['Comment'] . "'";
+
 
 		$sql .= "\n\n";
 
