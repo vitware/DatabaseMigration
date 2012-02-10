@@ -110,7 +110,7 @@ class databaseMigration extends Nette\Object
 			$reference = NULL;
 			foreach ($keys as $key) {
 				if ($key['COLUMN_NAME'] == $column['Field']) {
-					$reference[] = Array(
+					$reference[$key['CONSTRAINT_NAME']] = Array(
 						'Name' => $key['CONSTRAINT_NAME'],
 						'Table' => $key['REFERENCED_TABLE_NAME'],
 						'Column' => $key['REFERENCED_COLUMN_NAME'],
