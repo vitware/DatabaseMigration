@@ -132,7 +132,7 @@ class databaseSQL extends Nette\Object
 	 * @param type $column 
 	 * @return string část sql příkazu
 	 */
-	private static function columnPartSQL($column)
+	public static function columnPartSQL($column, $full = TRUE)
 	{
 		// jméno sloupce
 		$sql = '`' . $column['Field'] . '`';
@@ -158,10 +158,12 @@ class databaseSQL extends Nette\Object
 		if ($column['Extra'] != '') {
 			$sql .= " " . $column['Extra'] . " ";
 		}
-
-		// klíče
-		if ($column['Key'] == 'PRI') {
-			$sql .= ' PRIMARY KEY ';
+		
+		if ($full == TRUE) {
+			// klíče
+			if ($column['Key'] == 'PRI') {
+				$sql .= ' PRIMARY KEY ';
+			}
 		}
 
 		return $sql;

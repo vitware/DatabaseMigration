@@ -157,7 +157,7 @@ class databaseMigration extends Nette\Object
 				do {
 					$comment = self::COMMENT_PREFIX . \Nette\Utils\Strings::random(self::COMMENT_LENGHT);
 					$this->database->query("ALTER TABLE `" . $table['Name'] . "` COMMENT '" . $table['Comment'] . ' ' . $comment . "'");
-					$row = $this->database->query('SHOW TABLE STATUS WHERE COMMENT LIKE "' . $comment . '%"');
+					$row = $this->database->query('SHOW TABLE STATUS WHERE COMMENT LIKE "%' . $comment . '"');
 				} while (!$row);
 			}
 			$this->createCommentColumn($table['Name']);
@@ -177,9 +177,10 @@ class databaseMigration extends Nette\Object
 				// bude hledat nenalezne klíč, které ještě nebyl přidělen
 				do {
 					$comment = self::COMMENT_PREFIX . \Nette\Utils\Strings::random(self::COMMENT_LENGHT);
-					/** @todo občas asi to některé věci mění :-( */
-					$this->database->query("ALTER TABLE `" . $tableName . "` CHANGE `" . $column['Field'] . "` `" . $column['Field'] . "` " . $column['Type'] . " COMMENT '" . $column['Comment'] . " " . $comment . "'");
-					$row = $this->database->query('SHOW FULL COLUMNS FROM `' . $tableName . '` where COMMENT LIKE "' . $comment . '%"');
+					$nColumn = $column;
+					$nColumn['Comment'] = $column['Comment'].' '. $comment;
+					$this->database->query("ALTER TABLE `" . $tableName . "`\n\t CHANGE `" . $column['Field'] . "` " . databaseSQL::columnPartSQL($nColumn, FALSE) . ";");
+					$row = $this->database->query('SHOW FULL COLUMNS FROM `' . $tableName . '` where COMMENT LIKE "%' . $column['Comment'] . '"');
 				} while (!$row);
 			}
 		}
