@@ -50,9 +50,10 @@
 <table class="table table-striped">
 	<tr>
 		<th></th>
-		<th>Kód sloupce</th>
 		<th>Název sloupce</th>
 		<th>Typ</th>
+		<th>Kód</th>
+		
 	</tr>
 	{foreach $table as $name => $column}
 	{if $name != '__table'}
@@ -63,8 +64,20 @@
 		<td>{$source[$key][$name]['Type']}</td>
 		{elseif $column == '?'}
 		<td><i class="icon-refresh"></i></td>
-		<td>{$source[$key][$name]['Field']} / {$destination[$key][$name]['Field']}</td>
-		<td>{$source[$key][$name]['Type']} / {$destination[$key][$name]['Type']}</td>
+		<td>
+			{if $source[$key][$name]['Field'] == $destination[$key][$name]['Field']}
+			{$destination[$key][$name]['Field']}
+			{else}
+			<strong>{$source[$key][$name]['Field']}</strong> / {$destination[$key][$name]['Field']}
+			{/if}
+		</td>
+		<td>
+			{if $source[$key][$name]['Type'] == $destination[$key][$name]['Type']}
+			{$source[$key][$name]['Type']}
+			{else}
+			<strong>{$source[$key][$name]['Type']}</strong> / {$destination[$key][$name]['Type']}
+			{/if}
+		</td>
 		{elseif $column == '='}
 		<td><i class="icon-ok"></i></td>	
 		<td>{$source[$key][$name]['Field']}</td>
