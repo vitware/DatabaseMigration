@@ -85,7 +85,7 @@ class databaseSQL extends Nette\Object
 		// odstraní sloupce
 		foreach ($destination as $key => $column) {
 			if (!isSet($source[$key])) {
-				$sql .= "\t DROP `" . $column['Field'] . "` \n";
+				$sql .= "\t DROP `" . $column['Field'] . "`, \n";
 			}
 		}
 
@@ -96,7 +96,7 @@ class databaseSQL extends Nette\Object
 				// nový sloupec
 				$sql .= "\t ADD " . self::columnPartSQL($column) . ", \n";
 				$sql .= self::columnPartIndex($column);
-				$sql .= self::columnPartForeignKey($column['Reference'], $destination[$key]['Reference'], $column);
+				$sql .= self::columnPartForeignKey($column['Reference'], NULL, $column);
 			} else {
 				if ($destination[$key]['Field'] != $column['Field'] ||
 					$destination[$key]['Type'] != $column['Type'] ||
